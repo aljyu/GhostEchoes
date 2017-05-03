@@ -1,6 +1,7 @@
 package com.example.ghostechoes.ghostechoes;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,19 +28,25 @@ public class MapsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maps_activity);
+
+        // Button and Image Objects
         button = (Button) findViewById(R.id.pinEcho);
         imageView = (ImageView) findViewById(R.id.image_view);
+
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start camer app
+                // Start camera application
                 Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(camera_intent, 0);
+
                 // Pass the file location for image into intent object
                 // Get file path from getFile
-                File file = getFile();
+                //File file = getFile();
                 // Pass file into intern object, arg - key, file in form of uri
-                camera_intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                startActivityForResult(camera_intent, CAM_REQUEST);
+                //camera_intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                //startActivityForResult(camera_intent, CAM_REQUEST);
 
             }
         });
@@ -67,8 +74,12 @@ public class MapsActivity extends AppCompatActivity {
     // Because of onStartActivity, after call will call this below within main activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = "sdcard/camera_app/cam_image.jpg";
-        imageView.setImageDrawable(Drawable.createFromPath(path));
+        super.onActivityResult(requestCode, resultCode, data);
+        Bitmap bp = (Bitmap) data.getExtras().get("data");
+        imageView.setImageBitmap(bp);
+
+        //String path = "sdcard/camera_app/cam_image.jpg";
+        //imageView.setImageDrawable(Drawable.createFromPath(path));
     }
 
     /*

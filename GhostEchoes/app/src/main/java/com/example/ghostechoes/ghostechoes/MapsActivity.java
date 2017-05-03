@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -21,8 +22,9 @@ public class MapsActivity extends AppCompatActivity {
 
     Button button;
     ImageView imageView;
-    // reqest call
-    static final int CAM_REQUEST = 1;
+
+    // Request Code
+    static final int CAMERA_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,30 +41,15 @@ public class MapsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Start camera application
                 Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(camera_intent, 0);
 
-                // Pass the file location for image into intent object
-                // Get file path from getFile
+                // Get file path for new image storage
                 //File file = getFile();
-                // Pass file into intern object, arg - key, file in form of uri
-                //camera_intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                //startActivityForResult(camera_intent, CAM_REQUEST);
 
+                // Pass file location (uri) into intent object; key will identify it
+                //camera_intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                startActivityForResult(camera_intent, CAMERA_REQUEST);
             }
         });
-    }
-
-
-    // Create folder on external storage
-    private File getFile() {
-        File folder =  new File("sdcard/camera_app");
-        // Check if folder is available or not
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        // folder name, and file name
-        File image_file = new File(folder, "cam_image.jpg");
-        return image_file;
     }
 
     @Override
@@ -71,28 +58,34 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
-    // Because of onStartActivity, after call will call this below within main activity
+
+    // Create Folder in external storage
+    private File getFile() {
+        File folder =  new File("sdcard/camera_app");
+        // Check if folder is available or not; create folder it not
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        // Create file with file name and folder
+        File img = new File(folder, "camera_image.jpg");
+        return img;
+    }
+
+    // Called after startActivityForResult in main activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap bp = (Bitmap) data.getExtras().get("data");
-        imageView.setImageBitmap(bp);
 
-        //String path = "sdcard/camera_app/cam_image.jpg";
-        //imageView.setImageDrawable(Drawable.createFromPath(path));
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
+            Bitmap bp = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(bp);
+        } else {
+            // Handle NullPointerException from Image Cancel
+            Toast.makeText(getApplicationContext(), "Image Not Taken", Toast.LENGTH_LONG).show();
+        }
+
+       // String path = "sdcard/camera_app/cam_image.jpg";
+       // imageView.setImageDrawable(Drawable.createFromPath(path));
     }
 
-    /*
-        Get current location
-        Save that location for next activity
-        Get user id
-        Navigate to next activity
-         */
-    public void createEcho() {
-        // @TODO
-
-
-
-        return;
-    }
 }

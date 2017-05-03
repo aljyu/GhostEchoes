@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Ghost Echoes</string>
+    <string name="Ghost_Echoes_Title">Ghost Echoes</string>
+    <string name="Home_Map_Button">Enter</string>
+    <string name="Enter_Text">Enter your Echo</string>
+    <string name="Submit_Echo">Echo</string>
 </resources>
+
+

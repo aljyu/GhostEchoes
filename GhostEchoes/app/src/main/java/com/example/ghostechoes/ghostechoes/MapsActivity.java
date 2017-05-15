@@ -7,11 +7,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
@@ -79,6 +82,7 @@ public class MapsActivity extends AppCompatActivity {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
             Bitmap bp = (Bitmap) data.getExtras().get("data");
             imageView.setImageBitmap(bp);
+            byte[] bpdata = bitmapToByteArray(bp);
         } else {
             // Handle NullPointerException from Image Cancel
             Toast.makeText(getApplicationContext(), "Image Not Taken", Toast.LENGTH_LONG).show();
@@ -86,6 +90,14 @@ public class MapsActivity extends AppCompatActivity {
 
        // String path = "sdcard/camera_app/cam_image.jpg";
        // imageView.setImageDrawable(Drawable.createFromPath(path));
+    }
+
+    /* Converts Bitmap to ByteArray for database storage
+     */
+    public static byte[] bitmapToByteArray(Bitmap bm) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
     }
 
 }

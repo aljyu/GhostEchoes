@@ -2,18 +2,14 @@ package com.example.ghostechoes.ghostechoes;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
@@ -21,7 +17,7 @@ import java.io.File;
  * Created by alex on 4/29/2017.
  */
 
-public class MapsActivity extends AppCompatActivity {
+public class EchoInputActivity extends AppCompatActivity {
 
     Button button;
     ImageView imageView;
@@ -32,7 +28,7 @@ public class MapsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.maps_activity);
+        setContentView(R.layout.activity_echo_input);
 
         // Button and Image Objects
         button = (Button) findViewById(R.id.pinEcho);
@@ -60,7 +56,6 @@ public class MapsActivity extends AppCompatActivity {
         super.onResume();
 
     }
-
 
     // Create Folder in external storage
     private File getFile() {

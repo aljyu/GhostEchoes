@@ -4,6 +4,7 @@
     <string name="Home_Map_Button">Enter</string>
     <string name="Enter_Text">Enter your Echo</string>
     <string name="Submit_Echo">Echo</string>
+    <string name="title_activity_google_maps">Map</string>
 </resources>
 
 

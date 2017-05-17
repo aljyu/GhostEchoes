@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickEnterApp(View V){
         Log.d(LOG_TAG,"Hitting the Enter Button");
         //Intent intent = new Intent(this, Echo_Input_Text.class);
-        Intent intent = new Intent(this, MapsActivity.class);
+        Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

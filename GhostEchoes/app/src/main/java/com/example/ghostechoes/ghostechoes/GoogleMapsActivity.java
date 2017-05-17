@@ -1,9 +1,11 @@
 package com.example.ghostechoes.ghostechoes;
 
 import android.content.Intent;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +17,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private LocationTracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,15 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         startActivity(intent);
 
         // Pass Location to next Activity
-        // @TODO
+        gps = new LocationTracker(this);
+        if(gps.canGetLocation()) {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Your Location is -\nLat: " + gps.getLatitude() + "\nLong: "
+                            + gps.getLongitude(), Toast.LENGTH_LONG).show();
+        } else {
+            gps.showSettingsAlert();
+        }
     }
 
     // Get current location of user
@@ -57,8 +68,8 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        LatLng sydney = new LatLng(37.000369, -122.063237);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in UCSC"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 }

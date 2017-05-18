@@ -96,18 +96,6 @@ public class EchoInputActivity extends AppCompatActivity {
         } else if (requestCode == IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
-                //String[] filePathCol = { MediaStore.Images.Media.DATA };
-                //Cursor cursor = getContentResolver().query(
-                //        selectedImage,
-                //        filePathCol,
-                //        null, null, null
-                //);
-                //cursor.moveToFirst();
-                //int colIndex = cursor.getColumnIndex(filePathCol[0]);
-                //String imagePath = cursor.getString(colIndex);
-                //cursor.close();
-                //Bitmap bp = (Bitmap) BitmapFactory.decodeFile(imagePath);
-
                 try {
                     Bitmap bp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
                     imageView.setImageBitmap(bp);
@@ -161,9 +149,7 @@ public class EchoInputActivity extends AppCompatActivity {
                     "\nMessage: " + message +
                     "\nImage: " + image, Toast.LENGTH_SHORT).show();
         }
-
         // @TODO - Store to Database Photo, Text, Location
-
         // Should only go to echo when location can be retrieved
         Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

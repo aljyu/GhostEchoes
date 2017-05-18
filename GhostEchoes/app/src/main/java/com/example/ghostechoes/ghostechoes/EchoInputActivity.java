@@ -1,7 +1,12 @@
 package com.example.ghostechoes.ghostechoes;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -20,36 +25,43 @@ import java.io.File;
 
 public class EchoInputActivity extends AppCompatActivity {
 
-    Button button;
-    ImageView imageView;
-    private LocationTracker gps;
-    private byte[] bpdata;
+    // Buttons, Views
+    Button btn_captureImage;                // Capture-image button
+    Button btn_openImgFolder;               // Open-image folder button
+    ImageView imageView;                    // View-Image object
+
+    // Data storage objects
+    private LocationTracker gps;            // GPS Coordinates
+    private byte[] bpdata;                  // Image Data
 
     // Request Code
-    static final int CAMERA_REQUEST = 1;
+    static final int CAMERA_REQUEST = 1;    // Camera Code
+    static final int IMAGE_REQUEST = 2;     // Image Folder Code
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_echo_input);
-
-        // Button and Image Objects
-        button = (Button) findViewById(R.id.echoSnap);
+        // Clickable Objects
+        btn_captureImage = (Button) findViewById(R.id.echoSnap);
+        btn_openImgFolder = (Button) findViewById(R.id.echoSavedImage);
         imageView = (ImageView) findViewById(R.id.image_view);
 
-
-        button.setOnClickListener(new View.OnClickListener() {
+        // Open Camera Application
+        btn_captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start camera application
                 Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                // Get file path for new image storage
-                //File file = getFile();
-
-                // Pass file location (uri) into intent object; key will identify it
-                //camera_intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
                 startActivityForResult(camera_intent, CAMERA_REQUEST);
+            }
+        });
+        // Default Photo Browse Application
+        btn_openImgFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent browse_intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(browse_intent, IMAGE_REQUEST);
             }
         });
     }
@@ -60,7 +72,58 @@ public class EchoInputActivity extends AppCompatActivity {
 
     }
 
-    // Store Created Echo
+    /**
+     * Checks for valid image and creates storable image data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Handle request and return of camera function
+        if (requestCode == CAMERA_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Bitmap bp = (Bitmap) data.getExtras().get("data");
+                imageView.setImageBitmap(bp);
+                bpdata = bitmapToByteArray(bp);
+            } else {
+                // Handles NullPointerException from Image Cancel
+                Toast.makeText(getApplicationContext(), "No Image Captured", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == IMAGE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Uri selectedImage = data.getData();
+                String[] filePathCol = { MediaStore.Images.Media.DATA };
+                Cursor cursor = getContentResolver().query(
+                        selectedImage,
+                        filePathCol,
+                        null, null, null
+                );
+                cursor.moveToFirst();
+                int colIndex = cursor.getColumnIndex(filePathCol[0]);
+                String imagePath = cursor.getString(colIndex);
+                cursor.close();
+
+                Bitmap bp = (Bitmap) BitmapFactory.decodeFile(imagePath);
+                imageView.setImageBitmap(bp);
+                bpdata = bitmapToByteArray(bp);
+            } else {
+                Toast.makeText(getApplicationContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Converts Bitmap to ByteArray for database storage
+     */
+    public static byte[] bitmapToByteArray(Bitmap bm) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    /**
+     * Stores echo data to database, which includes image bytes,
+     * geographic location (longitude, latitude), and message text.
+     */
     public void setEcho(View v){
         double longitude;
         double latitude;
@@ -89,44 +152,6 @@ public class EchoInputActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-    }
-
-    // Create Folder in external storage
-    private File getFile() {
-        File folder =  new File("sdcard/camera_app");
-        // Check if folder is available or not; create folder it not
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        // Create file with file name and folder
-        File img = new File(folder, "camera_image.jpg");
-        return img;
-    }
-
-    // Called after startActivityForResult in main activity
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
-            Bitmap bp = (Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(bp);
-            bpdata = bitmapToByteArray(bp);
-        } else {
-            // Handle NullPointerException from Image Cancel
-            Toast.makeText(getApplicationContext(), "Image Not Taken", Toast.LENGTH_LONG).show();
-        }
-
-       // String path = "sdcard/camera_app/cam_image.jpg";
-       // imageView.setImageDrawable(Drawable.createFromPath(path));
-    }
-
-    /* Converts Bitmap to ByteArray for database storage
-     */
-    public static byte[] bitmapToByteArray(Bitmap bm) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
     }
 
 }

@@ -21,6 +21,7 @@ public class EchoInputActivity extends AppCompatActivity {
 
     Button button;
     ImageView imageView;
+    private LocationTracker gps;
 
     // Request Code
     static final int CAMERA_REQUEST = 1;
@@ -31,7 +32,7 @@ public class EchoInputActivity extends AppCompatActivity {
         setContentView(R.layout.activity_echo_input);
 
         // Button and Image Objects
-        button = (Button) findViewById(R.id.pinEcho);
+        button = (Button) findViewById(R.id.echoSnap);
         imageView = (ImageView) findViewById(R.id.image_view);
 
 
@@ -55,6 +56,28 @@ public class EchoInputActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+    }
+
+    // Store Created Echo
+    public void setEcho(View v){
+        double longitude;
+        double latitude;
+        Bundle coordinates = getIntent().getExtras();
+        if (coordinates == null) {
+            Toast.makeText(getApplicationContext(), "No Coordinates Available", Toast.LENGTH_SHORT).show();
+            // @TODO - Null coordinates should have halted activities in maps
+        } else {
+            longitude = coordinates.getDouble("longitude");
+            latitude = coordinates.getDouble("latitude");
+            Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude, Toast.LENGTH_SHORT).show();
+        }
+
+        // @TODO - Store to Database Photo, Text, Location
+        
+        // Should only go to echo when location can be retrieved
+        Intent intent = new Intent(this, GoogleMapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     // Create Folder in external storage

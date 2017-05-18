@@ -31,11 +31,6 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
 
     // Navigate to echo construction activity
     public void setLocation(View v){
-        //Intent intent = new Intent(this, Echo_Input_Text.class);
-        Intent intent = new Intent(this, EchoInputActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-
         // Pass Location to next Activity
         gps = new LocationTracker(this);
         if(gps.canGetLocation()) {
@@ -46,12 +41,12 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         } else {
             gps.showSettingsAlert();
         }
-    }
-
-    // Get current location of user
-    public void getLocation() {
-        // @TODO
-        System.out.print(0);
+        // Should only go to echo when location can be retrieved
+        Intent intent = new Intent(this, EchoInputActivity.class);
+        intent.putExtra("longitude", gps.getLocation());
+        intent.putExtra("latitude",gps.getLatitude());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     /**

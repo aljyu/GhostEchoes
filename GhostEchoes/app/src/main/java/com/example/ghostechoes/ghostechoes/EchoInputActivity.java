@@ -34,8 +34,10 @@ public class EchoInputActivity extends AppCompatActivity {
     ImageView imageView;                    // View-Image object
 
     // Data storage objects
-    private LocationTracker gps;            // GPS Coordinates
+    private double longitude;               // GPS Coordinates
+    private double latitude;
     private byte[] bpdata;                  // Image Data
+    private String message;
 
     // Request Code
     static final int CAMERA_REQUEST = 1;    // Camera Code
@@ -50,6 +52,17 @@ public class EchoInputActivity extends AppCompatActivity {
         btn_captureImage = (Button) findViewById(R.id.echoSnap);
         btn_openImgFolder = (Button) findViewById(R.id.echoSavedImage);
         imageView = (ImageView) findViewById(R.id.image_view);
+
+        // Set passed data
+        Bundle coordinates = getIntent().getExtras();
+        if (coordinates == null) {
+            Toast.makeText(getApplicationContext(), "No Coordinates Available", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, GoogleMapsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        } else {
+            setCoordinates(coordinates.getDouble("longitude"), coordinates.getDouble("latitude"));
+        }
 
         // Open Camera Application
         btn_captureImage.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +101,7 @@ public class EchoInputActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Bitmap bp = (Bitmap) data.getExtras().get("data");
                 imageView.setImageBitmap(bp);
-                bpdata = bitmapToByteArray(bp);
+                setImageData(bp);
             } else {
                 // Handles NullPointerException from Image Cancel
                 Toast.makeText(getApplicationContext(), "No Image Captured", Toast.LENGTH_SHORT).show();
@@ -129,31 +142,46 @@ public class EchoInputActivity extends AppCompatActivity {
      * geographic location (longitude, latitude), and message text.
      */
     public void setEcho(View v){
-        double longitude;
-        double latitude;
-        String message;
-        byte[] image = bpdata;
+        // Set User's Message
+        setMessage();
+        Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
+                "\nMessage: " + message +
+                "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();
 
-        // User Message
-        EditText edvecho = (EditText) findViewById(R.id.echoMsg);
-        message = edvecho.getText().toString();
 
-        Bundle coordinates = getIntent().getExtras();
-        if (coordinates == null) {
-            Toast.makeText(getApplicationContext(), "No Coordinates Available", Toast.LENGTH_SHORT).show();
-            // @TODO - Null coordinates should have halted activities in maps
-        } else {
-            longitude = coordinates.getDouble("longitude");
-            latitude = coordinates.getDouble("latitude");
-            Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
-                    "\nMessage: " + message +
-                    "\nImage: " + image, Toast.LENGTH_SHORT).show();
-        }
         // @TODO - Store to Database Photo, Text, Location
+
         // Should only go to echo when location can be retrieved
         Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    /* Getter and Setter */
+    public void setImageData(Bitmap image) {
+        byte[] bpImage = bitmapToByteArray(image);
+        bpdata = bpImage;
+        return;
+    }
+
+    public byte[] getImageData() {
+        return bpdata;
+    }
+
+    public void setCoordinates(double lon, double lat) {
+        longitude = lon;
+        latitude = lat;
+        return;
+    }
+
+    public void setMessage() {
+        EditText edv = (EditText) findViewById(R.id.echoMsg);
+        message = edv.getText().toString();
+        return;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
 }

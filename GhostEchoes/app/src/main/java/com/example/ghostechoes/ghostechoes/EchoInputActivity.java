@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ public class EchoInputActivity extends AppCompatActivity {
     Button button;
     ImageView imageView;
     private LocationTracker gps;
+    private byte[] bpdata;
 
     // Request Code
     static final int CAMERA_REQUEST = 1;
@@ -62,6 +64,13 @@ public class EchoInputActivity extends AppCompatActivity {
     public void setEcho(View v){
         double longitude;
         double latitude;
+        String message;
+        byte[] image = bpdata;
+
+        // User Message
+        EditText edvecho = (EditText) findViewById(R.id.echoMsg);
+        message = edvecho.getText().toString();
+
         Bundle coordinates = getIntent().getExtras();
         if (coordinates == null) {
             Toast.makeText(getApplicationContext(), "No Coordinates Available", Toast.LENGTH_SHORT).show();
@@ -69,11 +78,13 @@ public class EchoInputActivity extends AppCompatActivity {
         } else {
             longitude = coordinates.getDouble("longitude");
             latitude = coordinates.getDouble("latitude");
-            Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
+                    "\nMessage: " + message +
+                    "\nImage: " + image, Toast.LENGTH_SHORT).show();
         }
 
         // @TODO - Store to Database Photo, Text, Location
-        
+
         // Should only go to echo when location can be retrieved
         Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -100,7 +111,7 @@ public class EchoInputActivity extends AppCompatActivity {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
             Bitmap bp = (Bitmap) data.getExtras().get("data");
             imageView.setImageBitmap(bp);
-            byte[] bpdata = bitmapToByteArray(bp);
+            bpdata = bitmapToByteArray(bp);
         } else {
             // Handle NullPointerException from Image Cancel
             Toast.makeText(getApplicationContext(), "Image Not Taken", Toast.LENGTH_LONG).show();

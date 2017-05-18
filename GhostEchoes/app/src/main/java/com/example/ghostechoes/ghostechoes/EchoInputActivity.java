@@ -9,7 +9,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Created by alex on 4/29/2017.
@@ -37,6 +40,7 @@ public class EchoInputActivity extends AppCompatActivity {
     // Request Code
     static final int CAMERA_REQUEST = 1;    // Camera Code
     static final int IMAGE_REQUEST = 2;     // Image Folder Code
+    static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3; // Read Image Folder Code
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,7 @@ public class EchoInputActivity extends AppCompatActivity {
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(browse_intent, IMAGE_REQUEST);
             }
+
         });
     }
 
@@ -91,20 +96,31 @@ public class EchoInputActivity extends AppCompatActivity {
         } else if (requestCode == IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
-                String[] filePathCol = { MediaStore.Images.Media.DATA };
-                Cursor cursor = getContentResolver().query(
-                        selectedImage,
-                        filePathCol,
-                        null, null, null
-                );
-                cursor.moveToFirst();
-                int colIndex = cursor.getColumnIndex(filePathCol[0]);
-                String imagePath = cursor.getString(colIndex);
-                cursor.close();
+                //String[] filePathCol = { MediaStore.Images.Media.DATA };
+                //Cursor cursor = getContentResolver().query(
+                //        selectedImage,
+                //        filePathCol,
+                //        null, null, null
+                //);
+                //cursor.moveToFirst();
+                //int colIndex = cursor.getColumnIndex(filePathCol[0]);
+                //String imagePath = cursor.getString(colIndex);
+                //cursor.close();
+                //Bitmap bp = (Bitmap) BitmapFactory.decodeFile(imagePath);
 
-                Bitmap bp = (Bitmap) BitmapFactory.decodeFile(imagePath);
-                imageView.setImageBitmap(bp);
-                bpdata = bitmapToByteArray(bp);
+                try {
+                    Bitmap bp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
+                    imageView.setImageBitmap(bp);
+                    bpdata = bitmapToByteArray(bp);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    // Check Permissions; build.gradle modified to use min sdk 23 for checkSelfPermission
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    }
+                }
             } else {
                 Toast.makeText(getApplicationContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
             }

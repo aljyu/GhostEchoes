@@ -1,9 +1,13 @@
 package com.example.ghostechoes.ghostechoes;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,6 +22,7 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
 
     private GoogleMap mMap;
     private LocationTracker gps;
+    static final int PERMISSION_ACCESS_FINE_LOCATION = 9507;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,21 +37,30 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
     // Navigate to echo construction activity
     public void setLocation(View v){
         // Pass Location to next Activity
-        gps = new LocationTracker(this);
-        if(gps.canGetLocation()) {
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Your Location is -\nLat: " + gps.getLatitude() + "\nLong: "
-                            + gps.getLongitude(), Toast.LENGTH_LONG).show();
-        } else {
-            gps.showSettingsAlert();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_ACCESS_FINE_LOCATION);
         }
-        // Should only go to echo when location can be retrieved
-        Intent intent = new Intent(this, EchoInputActivity.class);
-        intent.putExtra("longitude", gps.getLocation());
-        intent.putExtra("latitude",gps.getLatitude());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            gps = new LocationTracker(this);
+            if (gps.canGetLocation()) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        "Your Location is -\nLat: " + gps.getLatitude() + "\nLong: "
+                                + gps.getLongitude(), Toast.LENGTH_LONG).show();
+            } else {
+                gps.showSettingsAlert();
+            }
+            // Should only go to echo when location can be retrieved
+            Intent intent = new Intent(this, EchoInputActivity.class);
+            intent.putExtra("longitude", gps.getLongitude());
+            intent.putExtra("latitude", gps.getLatitude());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
     }
 
     /**

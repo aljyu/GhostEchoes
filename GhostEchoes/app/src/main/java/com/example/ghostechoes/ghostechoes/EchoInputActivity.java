@@ -173,33 +173,8 @@ public class EchoInputActivity extends AppCompatActivity {
 
 
         // @TODO - Store to Database Photo, Text, Location
-        final EditText msg = (EditText) findViewById(R.id.echoMsg);
-        // Instantiate the RequestQueue
-        String url = "darkfeather2.pythonanywhere.com/get_data";
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        String output = response.toString();
-                        /*
-                        int begin = output.indexOf(":\"");
-                        int end = output.lastIndexOf("\"");
-                        String result = output.substring(begin + 2, end);
-                        msg.setText(result);
-                        */
-                        msg.setText(output);
-                        Log.d(LOG_TAG, "Received: " + response.toString());
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(LOG_TAG, error.toString());
-                    }
-                });
-        queue.add(jsObjRequest);
-        
         // Should only go to echo when location can be retrieved
-        Intent intent = new Intent(this, GoogleMapsActivity.class);
+        Intent intent = new Intent(this, getEchoes.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
@@ -230,5 +205,7 @@ public class EchoInputActivity extends AppCompatActivity {
     public String getMessage() {
         return message;
     }
+    
+    
 
 }

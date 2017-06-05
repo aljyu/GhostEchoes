@@ -22,6 +22,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+
 /**
  * Created by alex on 4/29/2017.
  */
@@ -44,6 +62,9 @@ public class EchoInputActivity extends AppCompatActivity {
     static final int IMAGE_REQUEST = 2;     // Image Folder Code
     static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3; // Read Image Folder Code
 
+    // Request queue
+    RequestQueue queue;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,8 +101,10 @@ public class EchoInputActivity extends AppCompatActivity {
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(browse_intent, IMAGE_REQUEST);
             }
-
         });
+        
+        // Request queue
+        queue = Volley.newRequestQueue(this);
     }
 
     @Override
@@ -150,7 +173,31 @@ public class EchoInputActivity extends AppCompatActivity {
 
 
         // @TODO - Store to Database Photo, Text, Location
-
+        final EditText msg = (EditText) findViewById(R.id.echoMsg);
+        // Instantiate the RequestQueue
+        String url = "darkfeather2.pythonanywhere.com/get_data";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String output = response.toString();
+                        /*
+                        int begin = output.indexOf(":\"");
+                        int end = output.lastIndexOf("\"");
+                        String result = output.substring(begin + 2, end);
+                        msg.setText(result);
+                        */
+                        msg.setText(output);
+                        Log.d(LOG_TAG, "Received: " + response.toString());
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(LOG_TAG, error.toString());
+                    }
+                });
+        queue.add(jsObjRequest);
+        
         // Should only go to echo when location can be retrieved
         Intent intent = new Intent(this, GoogleMapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

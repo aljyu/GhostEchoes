@@ -60,23 +60,24 @@ public class GetEcho extends AppCompatActivity {
 
     public void storeMessage() {
         final TextView msg = (TextView) findViewById(R.id.textView3);
-        // Instantiate the RequestQueue
+        // Request queue
+        queue = Volley.newRequestQueue(this);
         String url = "http://darkfeather2.pythonanywhere.com/get_data";
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        String output = response.toString();
-                        msg.setText(output);
-                        //Log.d(LOG_TAG, "Received: " + response.toString());
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //Log.d(LOG_TAG, error.toString());
-                    }
-                });
-        queue.add(jsObjRequest);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                msg.setText("Response is: "+ response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                msg.setText("Please try again!");
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     public void goToMap(View v) {

@@ -200,7 +200,4 @@ public class EchoInputActivity extends AppCompatActivity {
     public String getMessage() {
         return message;
     }
-    
-    
-
 }

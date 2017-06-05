@@ -46,6 +46,8 @@ import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 public class EchoInputActivity extends AppCompatActivity {
 
+    private final String LOG_TAG = "EchoInput";
+
     // Buttons, Views
     Button btn_captureImage;                // Capture-image button
     Button btn_openImgFolder;               // Open-image folder button
@@ -61,11 +63,17 @@ public class EchoInputActivity extends AppCompatActivity {
     static final int CAMERA_REQUEST = 1;    // Camera Code
     static final int IMAGE_REQUEST = 2;     // Image Folder Code
     static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3; // Read Image Folder Code
-    
+
+    // Request
+    RequestQueue queue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_echo_input);
+        // Request objects
+        queue = Volley.newRequestQueue(this);
+
         // Clickable Objects
         btn_captureImage = (Button) findViewById(R.id.echoSnap);
         btn_openImgFolder = (Button) findViewById(R.id.echoSavedImage);
@@ -165,6 +173,8 @@ public class EchoInputActivity extends AppCompatActivity {
                 "\nMessage: " + message +
                 "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();
 
+        postEcho(longitude, latitude, message);
+        // Account for errors
 
         // @TODO - Store to Database Photo, Text, Location
         // Should only go to echo when location can be retrieved
@@ -172,6 +182,39 @@ public class EchoInputActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GetEcho.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+
+    public void postEcho(final double longitude, final double latitude, final String message) {
+        StringRequest sr = new StringRequest(Request.Method.POST,
+                "http://darkfeather2.pythonanywhere.com/post_data",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(LOG_TAG, "Got:" + response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("longitude", String.valueOf(longitude));
+                params.put("recipient" , String.valueOf(latitude));
+                params.put("msg", message);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
+        queue.add(sr);
     }
 
     /* Getter and Setter */

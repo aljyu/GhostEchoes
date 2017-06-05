@@ -166,7 +166,7 @@ public class EchoInputActivity extends AppCompatActivity {
      * Stores echo data to database, which includes image bytes,
      * geographic location (longitude, latitude), and message text.
      */
-    public void setEcho(View v){
+    public void getEcho(View v){
         // Set User's Message
         setMessage();
         Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
@@ -202,8 +202,8 @@ public class EchoInputActivity extends AppCompatActivity {
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("longitude", String.valueOf(longitude));
-                params.put("recipient" , String.valueOf(latitude));
-                params.put("msg", message);
+                params.put("latitude" , String.valueOf(latitude));
+                params.put("echo", message);
                 return params;
             }
 

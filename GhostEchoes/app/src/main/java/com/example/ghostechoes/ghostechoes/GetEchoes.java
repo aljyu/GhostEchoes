@@ -45,25 +45,24 @@ public class GetEchoes extends AppCompatActivity {
     // Buttons, Views
     Button btn_map;                // Map button
     // Request queue
-    //RequestQueue queue;
+    RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_echoes);
         // Clickable Objects
-        //btn_map = (Button) findViewById(R.id.button3);
+        btn_map = (Button) findViewById(R.id.button3);
         // Request queue
-        //queue = Volley.newRequestQueue(this);
+        queue = Volley.newRequestQueue(this);
         // Store messages to the database
-        //storeMessage();
+        storeMessage();
     }
 
     public void storeMessage() {
-		/*
         final TextView msg = (TextView) findViewById(R.id.textView3);
         // Instantiate the RequestQueue
-        String url = "darkfeather2.pythonanywhere.com/get_data";
+        String url = "http://darkfeather2.pythonanywhere.com/get_data";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -79,7 +78,6 @@ public class GetEchoes extends AppCompatActivity {
                     }
                 });
         queue.add(jsObjRequest);
-		*/
     }
 
     public void goToMap(View v) {

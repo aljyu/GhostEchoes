@@ -40,8 +40,7 @@ import java.util.Map;
 
 import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
-
-public class GetEchoes extends AppCompatActivity {
+public class GetEcho extends AppCompatActivity {
     // Buttons, Views
     Button btn_map;                // Map button
     // Request queue
@@ -50,7 +49,7 @@ public class GetEchoes extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_echoes);
+        setContentView(R.layout.activity_get_echo);
         // Clickable Objects
         btn_map = (Button) findViewById(R.id.button3);
         // Request queue

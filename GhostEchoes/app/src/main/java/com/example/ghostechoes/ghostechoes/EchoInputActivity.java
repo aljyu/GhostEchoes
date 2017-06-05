@@ -169,7 +169,7 @@ public class EchoInputActivity extends AppCompatActivity {
         // @TODO - Store to Database Photo, Text, Location
         // Should only go to echo when location can be retrieved
 
-        Intent intent = new Intent(this, GetEchoes.class);
+        Intent intent = new Intent(this, GetEcho.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

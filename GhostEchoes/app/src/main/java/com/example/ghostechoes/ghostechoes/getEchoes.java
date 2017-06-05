@@ -41,11 +41,16 @@ import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 
 public class getEchoes extends AppCompatActivity {
+    // Request queue
+    RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_echoes);
+        // Request queue
+        queue = Volley.newRequestQueue(this);
+        // Store messages to the database
         storeMessage();
     }
     

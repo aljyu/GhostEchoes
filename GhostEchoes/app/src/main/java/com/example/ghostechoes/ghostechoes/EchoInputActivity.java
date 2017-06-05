@@ -61,9 +61,6 @@ public class EchoInputActivity extends AppCompatActivity {
     static final int CAMERA_REQUEST = 1;    // Camera Code
     static final int IMAGE_REQUEST = 2;     // Image Folder Code
     static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3; // Read Image Folder Code
-
-    // Request queue
-    RequestQueue queue;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,9 +99,6 @@ public class EchoInputActivity extends AppCompatActivity {
                 startActivityForResult(browse_intent, IMAGE_REQUEST);
             }
         });
-        
-        // Request queue
-        queue = Volley.newRequestQueue(this);
     }
 
     @Override

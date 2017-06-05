@@ -166,25 +166,26 @@ public class EchoInputActivity extends AppCompatActivity {
      * Stores echo data to database, which includes image bytes,
      * geographic location (longitude, latitude), and message text.
      */
-    public void getEcho(View v){
+    public void saveEcho(View v){
         // Set User's Message
         setMessage();
+
+        // Store echo data into database
+        postEcho(longitude, latitude, message);
         Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
                 "\nMessage: " + message +
                 "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();
 
-        postEcho(longitude, latitude, message);
-        // Account for errors
-
-        // @TODO - Store to Database Photo, Text, Location
-        // Should only go to echo when location can be retrieved
-
+        // Navigate to next activity containing several echoes by geolocation
         Intent intent = new Intent(this, GetEcho.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
-
+    /**
+     * Sends POST request to server to store data (i.e. location, text)
+     * into database.
+     */
     public void postEcho(final double longitude, final double latitude, final String message) {
         StringRequest sr = new StringRequest(Request.Method.POST,
                 "http://darkfeather2.pythonanywhere.com/post_data",

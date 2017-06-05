@@ -50,7 +50,7 @@
         android:layout_marginBottom="34dp"
         android:layout_marginLeft="280dp"
         android:layout_marginRight="8dp"
-        android:onClick="getEcho"
+        android:onClick="saveEcho"
         android:text="PIN"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

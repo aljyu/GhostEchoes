@@ -23,6 +23,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -156,8 +157,14 @@ public class GetEcho extends AppCompatActivity {
                 for(int i = 0; i < response.length(); i++) {
                     try {
                         JSONObject jsonObject = response.getJSONObject(i);
-                        Double latitude = jsonObject.getDouble("latitude");
-                        Double longitude = jsonObject.getDouble("longitude");
+                        Double latitude;
+                        Double longitude;
+                        try {
+                            latitude = jsonObject.getDouble("latitude");
+                            longitude = jsonObject.getDouble("longitude");
+                        } catch (JSONException e) {
+                            continue;
+                        }
                         // Display only echoes within set range
                         if (isEchoInRange(latitude, longitude)) {
                             jsonList.add(jsonObject);

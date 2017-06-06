@@ -1,46 +1,32 @@
 package com.example.ghostechoes.ghostechoes;
 
-import android.app.Activity;
-import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+import java.util.List;
 
 public class GetEcho extends AppCompatActivity {
     String LOG_TAG = "GetEcho";
@@ -57,24 +43,101 @@ public class GetEcho extends AppCompatActivity {
     // GPS
     LocationTracker gps;
 
+    private class ListElement {
+        ListElement() {};
+        public String textLabel;
+        public String subTextLabel;
+
+        ListElement(String t1, String t2) {
+            textLabel = t1;
+            subTextLabel = t2;
+        }
+    }
+    private ArrayList<ListElement> aList;
+
+    private class MyAdapter extends ArrayAdapter<ListElement> {
+        int resource;
+        Context context;
+
+        public MyAdapter(Context _context, int _resource, List<ListElement> items) {
+            super(_context,_resource, items);
+            resource = _resource;
+            context = _context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LinearLayout newView;
+            ListElement w = getItem(position);
+
+            // Inflate new view if needed
+            if (convertView == null) {
+                newView = new LinearLayout(getContext());
+                LayoutInflater vi = (LayoutInflater)
+                        getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                vi.inflate(resource,  newView, true);
+            } else {
+                newView = (LinearLayout) convertView;
+            }
+
+            TextView tvCoordinates = (TextView) newView.findViewById(R.id.itemText);
+            TextView tvMessage = (TextView) newView.findViewById(R.id.itemSubText);
+            tvCoordinates.setText(w.textLabel);
+            tvMessage.setText(w.subTextLabel);
+
+            // Set listener for whole list item
+            newView.setTag(w.textLabel);
+            newView.setOnClickListener(new View.OnClickListener() {
+                // @TODO Link to page with just text
+                @Override
+                public void onClick(View v) {
+                    String s = v.getTag().toString();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, s, duration);
+                    toast.show();
+                }
+            });
+            return newView;
+        }
+    }
+
+    private MyAdapter aa;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_echo);
+        setContentView(R.layout.activity_echo_list);
         // Clickable Objects
-        btn_map = (Button) findViewById(R.id.button3);
+        btn_map = (Button) findViewById(R.id.goToMap);
         // Request Queue
         queue = Volley.newRequestQueue(this);
         // Get echoes from database
-        getEcho();
+        aList = new ArrayList<ListElement>();
+        aa = new MyAdapter(this, R.layout.echo_list_element, aList);
+        ListView myListView = (ListView) findViewById(R.id.listView);
+        myListView.setAdapter(aa);
+        aa.notifyDataSetChanged();
+    }
+
+    /**
+     * Volley Callback
+     */
+    public interface VolleyCallback {
+        void onSuccessResponse(JSONArray jsonResponse);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clickRefresh(null);
     }
 
     /**
      * Sends GET request to server to retrieve data (i.e. location, text)
      * into database.
      */
-    public void getEcho() {
-        final TextView msg = (TextView) findViewById(R.id.textView3);
+    public void getEcho(final VolleyCallback callback) {
+        final TextView msg = (TextView) findViewById(R.id.systemMessage);
         // Request queue
         queue = Volley.newRequestQueue(this);
         String url = "http://darkfeather2.pythonanywhere.com/get_data";
@@ -91,14 +154,17 @@ public class GetEcho extends AppCompatActivity {
                         Double longitude = jsonObject.getDouble("longitude");
                         // Display only echoes within set range
                         if (isEchoInRange(latitude, longitude)) {
-                            jsonList.add(jsonObject);
+                            jsonList.add(jsonObject); //@TODO remove
                         }
                     } catch (Exception e) {
                         Log.d(LOG_TAG, e.toString());
                     }
                 }
-                String jsonResponse = jsonList.toString();
-                msg.setText("Response is: "+ jsonResponse);
+                JSONArray jsonResponse = new JSONArray(jsonList);
+                callback.onSuccessResponse(jsonResponse);
+
+                String jsonResponseData = jsonList.toString();
+                Log.d(LOG_TAG, "Response is: "+ jsonResponse);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -108,6 +174,37 @@ public class GetEcho extends AppCompatActivity {
         });
         // Add the request to the RequestQueue.
         queue.add(jsonArrayReq);
+    }
+
+    /**
+     * Calls getEcho to send GET Request for echo data.
+     * On successful response, update list with latest data.
+     */
+    public void clickRefresh (View v) {
+        getEcho(new VolleyCallback() {
+            @Override
+            public void onSuccessResponse(JSONArray jsonResponse) {
+                // aList is associated with array adapter
+                aList.clear();
+                for (int i = 0; i < jsonResponse.length(); i++) {
+                    try {
+                        JSONObject jObj = jsonResponse.getJSONObject(i);
+                        Double latitude = jObj.getDouble("latitude");
+                        Double longitude = jObj.getDouble("longitude");
+                        String message = jObj.getString("message");
+                        // Add data to list
+                        String coordinates = latitude.toString() + ", " + longitude.toString();
+                        aList.add(new ListElement(coordinates, message));
+                    } catch (Exception e) {
+                        Log.d(LOG_TAG, "JSON List Error");
+                    }
+                }
+                // We notify the ArrayList adapter that the underlying list has changed,
+                // triggering a re-rendering of the list
+                aa.notifyDataSetChanged();
+            }
+        });
+        Log.i(LOG_TAG, "Requested a refresh of the list");
     }
 
     /**

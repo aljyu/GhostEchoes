@@ -35,7 +35,7 @@ import java.util.Locale;
 public class GetEcho extends AppCompatActivity {
     String LOG_TAG = "GetEcho";
 
-    int SET_MILES = 3;
+    int SET_MILES = 50;
     Double METER_LIMIT = SET_MILES * 1609.34;
 
     // Buttons, Views
@@ -180,7 +180,7 @@ public class GetEcho extends AppCompatActivity {
                 callback.onSuccessResponse(jsonResponse);
 
                 String jsonResponseData = jsonList.toString();
-                Log.d(LOG_TAG, "Response is: "+ jsonResponse);
+                Log.d(LOG_TAG, "Response is: "+ jsonResponseData);
             }
         }, new Response.ErrorListener() {
             @Override

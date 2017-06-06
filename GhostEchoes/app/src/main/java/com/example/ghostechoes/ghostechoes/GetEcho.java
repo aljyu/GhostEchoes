@@ -2,6 +2,8 @@ package com.example.ghostechoes.ghostechoes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class GetEcho extends AppCompatActivity {
     String LOG_TAG = "GetEcho";
@@ -205,8 +208,16 @@ public class GetEcho extends AppCompatActivity {
                         Double latitude = jObj.getDouble("latitude");
                         Double longitude = jObj.getDouble("longitude");
                         String message = jObj.getString("message");
-                        // Add data to list
-                        String coordinates = latitude.toString() + ", " + longitude.toString();
+
+                        // Retrieve Location Address
+                        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+                        String coordinates;
+                        List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
+                        if (addresses.size() > 0) {
+                            coordinates = addresses.get(0).getLocality();
+                        } else {
+                            coordinates = latitude.toString() + ", " + longitude.toString();
+                        }
                         aList.add(new ListElement(coordinates, message));
                     } catch (Exception e) {
                         Log.d(LOG_TAG, "JSON List Error");

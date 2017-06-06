@@ -86,15 +86,21 @@ public class GetEcho extends AppCompatActivity {
             tvMessage.setText(w.subTextLabel);
 
             // Set listener for whole list item
-            newView.setTag(w.textLabel);
+            newView.setTag(w.subTextLabel);
             newView.setOnClickListener(new View.OnClickListener() {
-                // @TODO Link to page with just text
                 @Override
                 public void onClick(View v) {
+                    Intent echoForm_intent = new Intent(context, AnonEchoFormActivity.class);
+                    String echoMessage = v.getTag().toString();
+                    echoForm_intent.putExtra("echoMessage", echoMessage);
+
                     String s = v.getTag().toString();
                     int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, s, duration);
+                    Toast toast = Toast.makeText(context, "Opening Echo", duration);
                     toast.show();
+
+                    startActivity(echoForm_intent);
+
                 }
             });
             return newView;
@@ -154,7 +160,7 @@ public class GetEcho extends AppCompatActivity {
                         Double longitude = jsonObject.getDouble("longitude");
                         // Display only echoes within set range
                         if (isEchoInRange(latitude, longitude)) {
-                            jsonList.add(jsonObject); //@TODO remove
+                            jsonList.add(jsonObject);
                         }
                     } catch (Exception e) {
                         Log.d(LOG_TAG, e.toString());

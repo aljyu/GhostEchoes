@@ -33,6 +33,7 @@
         </activity>
         <activity android:name=".Echo_Input_Text" />
         <activity android:name=".EchoInputActivity" />
+        <activity android:name=".AnonEchoFormActivity"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

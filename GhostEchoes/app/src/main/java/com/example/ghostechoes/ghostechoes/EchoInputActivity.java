@@ -46,6 +46,8 @@ import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 public class EchoInputActivity extends AppCompatActivity {
 
+    private final String LOG_TAG = "EchoInput";
+
     // Buttons, Views
     Button btn_captureImage;                // Capture-image button
     Button btn_openImgFolder;               // Open-image folder button
@@ -62,13 +64,16 @@ public class EchoInputActivity extends AppCompatActivity {
     static final int IMAGE_REQUEST = 2;     // Image Folder Code
     static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3; // Read Image Folder Code
 
-    // Request queue
+    // Request
     RequestQueue queue;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_echo_input);
+        // Request objects
+        queue = Volley.newRequestQueue(this);
+
         // Clickable Objects
         btn_captureImage = (Button) findViewById(R.id.echoSnap);
         btn_openImgFolder = (Button) findViewById(R.id.echoSavedImage);
@@ -102,9 +107,6 @@ public class EchoInputActivity extends AppCompatActivity {
                 startActivityForResult(browse_intent, IMAGE_REQUEST);
             }
         });
-        
-        // Request queue
-        queue = Volley.newRequestQueue(this);
     }
 
     @Override
@@ -164,44 +166,56 @@ public class EchoInputActivity extends AppCompatActivity {
      * Stores echo data to database, which includes image bytes,
      * geographic location (longitude, latitude), and message text.
      */
-    public void setEcho(View v){
+    public void saveEcho(View v){
         // Set User's Message
         setMessage();
+
+        // Store echo data into database
+        postEcho(longitude, latitude, message);
         Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
                 "\nMessage: " + message +
                 "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();
 
-
-        // @TODO - Store to Database Photo, Text, Location
-        final EditText msg = (EditText) findViewById(R.id.echoMsg);
-        // Instantiate the RequestQueue
-        String url = "darkfeather2.pythonanywhere.com/get_data";
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        String output = response.toString();
-                        /*
-                        int begin = output.indexOf(":\"");
-                        int end = output.lastIndexOf("\"");
-                        String result = output.substring(begin + 2, end);
-                        msg.setText(result);
-                        */
-                        msg.setText(output);
-                        Log.d(LOG_TAG, "Received: " + response.toString());
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(LOG_TAG, error.toString());
-                    }
-                });
-        queue.add(jsObjRequest);
-        
-        // Should only go to echo when location can be retrieved
-        Intent intent = new Intent(this, GoogleMapsActivity.class);
+        // Navigate to next activity containing several echoes by geolocation
+        Intent intent = new Intent(this, GetEcho.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    /**
+     * Sends POST request to server to store data (i.e. location, text)
+     * into database.
+     */
+    public void postEcho(final double longitude, final double latitude, final String message) {
+        StringRequest sr = new StringRequest(Request.Method.POST,
+                "http://darkfeather2.pythonanywhere.com/post_data",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(LOG_TAG, "Got:" + response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("longitude", String.valueOf(longitude));
+                params.put("latitude" , String.valueOf(latitude));
+                params.put("echo", message);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
+        queue.add(sr);
     }
 
     /* Getter and Setter */
@@ -230,5 +244,4 @@ public class EchoInputActivity extends AppCompatActivity {
     public String getMessage() {
         return message;
     }
-
 }

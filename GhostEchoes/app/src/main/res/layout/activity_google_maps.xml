@@ -13,7 +13,7 @@
         tools:context="com.example.ghostechoes.ghostechoes.GoogleMapsActivity" />
 
     <Button
-        android:id="@+id/setEcho"
+        android:id="@+id/getEcho"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

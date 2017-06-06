@@ -49,6 +49,10 @@ public class LocationTracker extends Service implements LocationListener{
         getLocation();
     }
 
+    /**
+     * Retrieve current location based on network or gps.
+     * Location is updated via distance or duration.
+     */
     public Location getLocation() {
 
         try {
@@ -121,13 +125,18 @@ public class LocationTracker extends Service implements LocationListener{
         return location;
     }
 
+    /**
+     * Halts GPS application usage.
+     */
     public void stopUsingGPS() {
         if(locationManager != null) {
             locationManager.removeUpdates(LocationTracker.this);
         }
     }
 
-    // Get Latitude Coordinate
+    /**
+     * Return Coordinate's latitude
+     */
     public double getLatitude() {
         if(location != null) {
             latitude = location.getLatitude();
@@ -135,7 +144,9 @@ public class LocationTracker extends Service implements LocationListener{
         return latitude;
     }
 
-    // Get Longitude Coordinate
+    /**
+     * Return Coordinate's longitude
+     */
     public double getLongitude() {
         if(location != null) {
             longitude = location.getLongitude();
@@ -144,15 +155,16 @@ public class LocationTracker extends Service implements LocationListener{
         return longitude;
     }
 
-    // Getsmeters between the current location to set location
+    /**
+     * Returns approximate meters between current location and given location.
+     */
     public float radius(double latitude, double longitude) {
-        Location curr = getLocation();
-        Location pin = new Location ("pin");
-        pin.setLatitude(latitude);
-        pin.setLongitude(longitude);
-
-        float distance = curr.distanceTo(pin);
-        return distance;
+        Location currentLocation = getLocation();
+        Location echoLocation = new Location ("echo");
+        echoLocation.setLatitude(latitude);
+        echoLocation.setLongitude(longitude);
+        float meters = currentLocation.distanceTo(echoLocation);
+        return meters;
     }
 
     public boolean canGetLocation() {
@@ -163,9 +175,11 @@ public class LocationTracker extends Service implements LocationListener{
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
         alertDialog.setTitle("GPS Settings");
-        alertDialog.setMessage("GPS is not enabled. Would you like to go to settings menu?");
+        alertDialog.setMessage("GPS is not enabled. Would you like to go to Device Settings to enable GPS?");
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            // User wants to go to settings
+            /**
+             * User navigates to settings.
+             */
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -174,7 +188,9 @@ public class LocationTracker extends Service implements LocationListener{
         });
 
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            // User clicks cancel
+            /**
+             * User declines settings.
+             */
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -183,7 +199,6 @@ public class LocationTracker extends Service implements LocationListener{
         alertDialog.show();
     }
 
-    // Generated methods, modify if needed
     @Override
     public void onLocationChanged(Location arg0) {
         // TODO Auto-generated method stub

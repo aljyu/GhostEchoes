@@ -67,7 +67,7 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
      * Goes directly to the Echoes page
      */
     public void goToEchoes(View v) {
-        Intent intent = new Intent(this, getEcho.class);
+        Intent intent = new Intent(this, GetEcho.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

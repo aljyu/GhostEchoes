@@ -85,7 +85,7 @@ public class LocationTracker extends Service implements LocationListener{
                             location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
                             if (location != null) {
-                                Toast.makeText(context, "Network Service", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, "Network Service", Toast.LENGTH_SHORT).show();
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
                             }

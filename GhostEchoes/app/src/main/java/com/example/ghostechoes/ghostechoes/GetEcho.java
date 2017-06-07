@@ -35,7 +35,7 @@ import java.util.Locale;
 public class GetEcho extends AppCompatActivity {
     String LOG_TAG = "GetEcho";
 
-    int SET_MILES = 50;
+    int SET_MILES = 0.5;
     Double METER_LIMIT = SET_MILES * 1609.34;
 
     // Buttons, Views

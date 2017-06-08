@@ -3,14 +3,13 @@ package com.example.ghostechoes.ghostechoes;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import com.android.volley.AuthFailureError;
@@ -27,18 +25,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 /**
  * Created by alex on 4/29/2017.
@@ -169,9 +160,14 @@ public class EchoInputActivity extends AppCompatActivity {
     public void saveEcho(View v){
         // Set User's Message
         setMessage();
-
+        String imageString;
+        // Retrieve String Base64 format for HTTP Post
+        try {
+            imageString = Base64.encodeToString(bpdata, Base64.DEFAULT);
+        } catch (NullPointerException e){
+            imageString = "No Image";
+        }
         // Store echo data into database
-        postEcho(longitude, latitude, message);
         Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
                 "\nMessage: " + message +
                 "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();
@@ -186,7 +182,7 @@ public class EchoInputActivity extends AppCompatActivity {
      * Sends POST request to server to store data (i.e. location, text)
      * into database.
      */
-    public void postEcho(final double longitude, final double latitude, final String message) {
+    public void postEcho(final double longitude, final double latitude, final String message, final String image) {
         StringRequest sr = new StringRequest(Request.Method.POST,
                 "http://darkfeather2.pythonanywhere.com/post_data",
                 new Response.Listener<String>() {
@@ -206,6 +202,7 @@ public class EchoInputActivity extends AppCompatActivity {
                 params.put("longitude", String.valueOf(longitude));
                 params.put("latitude" , String.valueOf(latitude));
                 params.put("echo", message);
+                params.put("image", image);
                 return params;
             }
 

@@ -5,6 +5,8 @@
     <string name="Enter_Text">Enter your Echo</string>
     <string name="Submit_Echo">Echo</string>
     <string name="title_activity_google_maps">Map</string>
+    <item type="id" name="echoMessage" />
+    <item type="id" name="echoImage" />
 </resources>
 
 

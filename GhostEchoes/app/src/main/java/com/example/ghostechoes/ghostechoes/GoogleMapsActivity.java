@@ -55,6 +55,7 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        gps = new LocationTracker(this);
         queue = Volley.newRequestQueue(this);
         for(int i = 0; i < REQUEST_LIMIT; i++) {
             if (jsonArray == null) {
@@ -131,7 +132,6 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
-            gps = new LocationTracker(this);
             if (gps.canGetLocation()) {
                 Toast.makeText(
                         getApplicationContext(),
@@ -172,8 +172,13 @@ public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCa
         mMap = googleMap;
         ArrayList<LatLng> latlngs = new ArrayList<>();
 
-        // Add a marker in Sydney and move the camera
-        LatLng ucsc = new LatLng(37.000369, -122.063237);
+        // Add marker for current location
+        LatLng ucsc;
+        if (gps.canGetLocation()) {
+            ucsc = new LatLng(gps.getLatitude(), gps.getLongitude());
+        } else {
+            ucsc = new LatLng(37.000369, -122.063237);
+        }
         mMap.addMarker(new MarkerOptions().position(ucsc).title("Marker in UCSC"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ucsc, 11));
     }

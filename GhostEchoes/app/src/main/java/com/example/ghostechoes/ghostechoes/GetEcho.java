@@ -35,7 +35,7 @@ import java.util.Locale;
 public class GetEcho extends AppCompatActivity {
     String LOG_TAG = "GetEcho";
 
-    double SET_MILES = 0.5;
+    double SET_MILES = 50; //0.5;
     Double METER_LIMIT = SET_MILES * 1609.34;
 
     // Buttons, Views
@@ -51,10 +51,12 @@ public class GetEcho extends AppCompatActivity {
         ListElement() {};
         public String textLabel;
         public String subTextLabel;
+        public String imageLabel;
 
-        ListElement(String t1, String t2) {
+        ListElement(String t1, String t2, String t3) {
             textLabel = t1;
             subTextLabel = t2;
+            imageLabel = t3;
         }
     }
     private ArrayList<ListElement> aList;
@@ -90,15 +92,18 @@ public class GetEcho extends AppCompatActivity {
             tvMessage.setText(w.subTextLabel);
 
             // Set listener for whole list item
-            newView.setTag(w.subTextLabel);
+            newView.setTag(R.id.echoMessage, w.subTextLabel);
+            newView.setTag(R.id.echoImage, w.imageLabel);
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent echoForm_intent = new Intent(context, AnonEchoFormActivity.class);
-                    String echoMessage = v.getTag().toString();
+                    String echoMessage = v.getTag(R.id.echoMessage).toString();
+                    String echoImage = v.getTag(R.id.echoImage).toString();
                     echoForm_intent.putExtra("echoMessage", echoMessage);
+                    echoForm_intent.putExtra("echoImage", echoImage);
 
-                    String s = v.getTag().toString();
+                    String s = v.getTag(R.id.echoMessage).toString();
                     int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(context, "Opening Echo", duration);
                     toast.show();
@@ -208,7 +213,13 @@ public class GetEcho extends AppCompatActivity {
                         Double latitude = jObj.getDouble("latitude");
                         Double longitude = jObj.getDouble("longitude");
                         String message = jObj.getString("message");
-
+                        String image;
+                        // Assure not image exists
+                        try {
+                            image = jObj.getString("image");
+                        } catch (Exception e){
+                            image = null;
+                        }
                         // Retrieve Location Address
                         Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
                         String coordinates;
@@ -218,7 +229,7 @@ public class GetEcho extends AppCompatActivity {
                         } else {
                             coordinates = latitude.toString() + ", " + longitude.toString();
                         }
-                        aList.add(new ListElement(coordinates, message));
+                        aList.add(new ListElement(coordinates, message, image));
                     } catch (Exception e) {
                         Log.d(LOG_TAG, "JSON List Error");
                     }

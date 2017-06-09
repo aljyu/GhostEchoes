@@ -168,6 +168,7 @@ public class EchoInputActivity extends AppCompatActivity {
             imageString = "No Image";
         }
         // Store echo data into database
+        postEcho(longitude, latitude, message, imageString);
         Toast.makeText(getApplicationContext(), "Pinning Echo at " + longitude + ", " + latitude +
                 "\nMessage: " + message +
                 "\nImage: " + bpdata, Toast.LENGTH_SHORT).show();

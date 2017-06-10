@@ -52,6 +52,7 @@ public class LocationTracker extends Service implements LocationListener{
     /**
      * Retrieve current location based on network or gps.
      * Location is updated via distance or duration.
+     * Source Assistance: https://stackoverflow.com/questions/41310624/android-how-to-get-current-location-in-longitude-and-latitude
      */
     public Location getLocation() {
 
